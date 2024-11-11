@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{5F06B324-448E-4252-8197-BC72553FF18F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4DFD7142-ACC2-4C81-A47D-F4AF2611B561} = {4DFD7142-ACC2-4C81-A47D-F4AF2611B561}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiDomain", "ApiDomain\ApiDomain.csproj", "{4DFD7142-ACC2-4C81-A47D-F4AF2611B561}"
 EndProject
