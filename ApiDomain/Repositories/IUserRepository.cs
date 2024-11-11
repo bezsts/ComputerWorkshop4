@@ -1,4 +1,4 @@
-﻿using ApiDomain.Models;
+﻿using ApiDomain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

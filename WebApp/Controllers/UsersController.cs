@@ -1,4 +1,4 @@
-﻿using ApiDomain.Models;
+﻿using ApiDomain.Entities;
 using ApiDomain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 

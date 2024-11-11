@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApiDomain.Enums;
 
-namespace ApiDomain.Models
+namespace ApiDomain.Entities
 {
     public class Movie
     {

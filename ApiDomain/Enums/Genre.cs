@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiDomain.Models
+namespace ApiDomain.Enums
 {
     public enum Genre
     {
