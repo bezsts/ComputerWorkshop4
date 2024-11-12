@@ -1,4 +1,6 @@
+using ApiDomain;
 using ApiDomain.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -13,6 +15,8 @@ namespace ComputerWorkshop1
             builder.Services.AddControllers();
             builder.Services.AddUser();
             builder.Services.AddMovie();
+            builder.Services.AddDbContext<DataModelContext>(contextOptions =>
+                contextOptions.UseSqlite("Data Source=Database/sample.db"));
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
