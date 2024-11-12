@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
-namespace ComputerWorkshop1
+namespace ComputerWorkshop2
 {
     public class Program
     {
