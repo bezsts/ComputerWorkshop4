@@ -20,4 +20,8 @@
     <ProjectReference Include="..\ApiDomain\ApiDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\" />
+  </ItemGroup>
+
 </Project>
