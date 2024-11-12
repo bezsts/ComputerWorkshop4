@@ -1,37 +1,10 @@
 ﻿using ApiDomain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ApiDomain.Repositories.Contracts;
 
 namespace ApiDomain.Repositories
 {
-    internal class UserRepository : IUserRepository
+    internal class UserRepository : GenericRepository<User, int>, IUserRepository
     {
-        public User Create(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Delete(int Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public User? Get(int Id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<User> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Update(int id, User updatedUser)
-        {
-            throw new NotImplementedException();
-        }
+        public UserRepository(DataModelContext context) : base(context) { }
     }
 }

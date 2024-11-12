@@ -1,37 +1,10 @@
 ﻿using ApiDomain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ApiDomain.Repositories.Contracts;
 
 namespace ApiDomain.Repositories
 {
-    internal class MovieRepository : IMovieRepository
+    internal class MovieRepository : GenericRepository<Movie, int>, IMovieRepository
     {
-        public Movie Create(Movie movie)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Movie? Get(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Movie> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Update(int id, Movie updatedMovie)
-        {
-            throw new NotImplementedException();
-        }
+        public MovieRepository(DataModelContext context) : base(context) { }
     }
 }

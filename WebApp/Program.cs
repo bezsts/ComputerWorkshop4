@@ -13,8 +13,7 @@ namespace ComputerWorkshop2
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
-            builder.Services.AddUser();
-            builder.Services.AddMovie();
+            builder.Services.AddRepositories();
             builder.Services.AddDbContext<DataModelContext>(contextOptions =>
                 contextOptions.UseSqlite("Data Source=Database/sample.db"));
             builder.Services.AddSwaggerGen(options =>
