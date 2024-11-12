@@ -27,7 +27,7 @@ namespace ApiDomain.Entities.Configurations
                 .IsRequired();
 
             builder.Property(m => m.ReleaseDate)
-                .HasDefaultValue(DateTime.Now)
+                .HasDefaultValue(DateOnly.FromDateTime(DateTime.Now))
                 .IsRequired();
         }
     }
