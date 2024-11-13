@@ -7,6 +7,8 @@ namespace WebApp.Dtos.Movie
     {
         public MovieProfile() 
         {
+            CreateMap<MovieCreateDto, MovieEntity>()
+                .ForMember(dest => dest.UsersWhoWatched, opt => opt.Ignore());
             CreateMap<MovieEntity, MovieOutputDto>()
                 .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Genre.ToString()));
             CreateMap<MovieEntity, MovieOutputDto>()

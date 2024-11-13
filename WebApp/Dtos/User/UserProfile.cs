@@ -7,7 +7,9 @@ namespace WebApp.Dtos.User
     {
        public UserProfile() 
        {
+            CreateMap<UserCreateDto, UserEntity>()
+                .ForMember(dest => dest.WatchedMovies, opt => opt.Ignore());
             CreateMap<UserEntity, UserOutputDto>();
-       }
+        }
     }
 }
