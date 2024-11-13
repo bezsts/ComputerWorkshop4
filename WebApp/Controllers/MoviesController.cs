@@ -74,7 +74,7 @@ namespace WebApp.Controllers
         /// <response code="200">The operation of updating is successful.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMovie(int id, Movie updatedMovie)
+        public async Task<IActionResult> UpdateMovie(int id, MovieCreateDto updatedMovie)
         {
             var existingMovie = await _repository.FindAsync(id);
             if (existingMovie == null)
