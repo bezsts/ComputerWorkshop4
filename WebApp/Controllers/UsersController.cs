@@ -1,6 +1,9 @@
 ﻿using ApiDomain.Entities;
-using ApiDomain.Repositories;
+using ApiDomain.Repositories.Contracts;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApp.Dtos.User;
 
 namespace WebApp.Controllers
 {
@@ -9,9 +12,14 @@ namespace WebApp.Controllers
     [Produces("application/json")]
     public class UsersController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly IUserRepository _repository;
 
-        public UsersController(IUserRepository service) => _repository = service;
+        public UsersController(IMapper mapper, IUserRepository repository) 
+        {
+            _repository = repository;
+            _mapper = mapper;
+        }
 
         /// <summary>
         /// Retrieves all users.
@@ -19,7 +27,8 @@ namespace WebApp.Controllers
         /// <returns>All Users.</returns>
         /// <response code="200">Returns all Users.</response>
         [HttpGet]
-        public IEnumerable<User> GetAllUsers() => _repository.GetAll();
+        public Task<List<UserOutputDto>> GetAllUsers() => 
+            _mapper.ProjectTo<UserOutputDto>(_repository.GetAll()).ToListAsync();
 
         /// <summary>
         /// Get a specific user by ID.
@@ -29,10 +38,15 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the user with the specified ID.</response>
         /// <response code="404">The user is not found.</response>
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public async Task<ActionResult<UserOutputDto>> GetUser(int id)
         {
-            var user = _repository.Get(id);
-            return user != null ? Ok(user) : NotFound();
+            var user = await _repository.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var userDto = _mapper.Map<UserOutputDto>(user);
+            return Ok(userDto);
         }
 
         /// <summary>
@@ -43,7 +57,12 @@ namespace WebApp.Controllers
         /// <response code="201">The user is successfully added.</response>
         /// <response code="400">The user data is invalid.</response>
         [HttpPost]
-        public IActionResult CreateUser(User user) => CreatedAtAction(nameof(GetUser), new { id = user.Id }, _repository.Create(user));
+        public async Task<IActionResult> CreateUser(UserCreateDto user) 
+        {
+            await _repository.AddAsync(_mapper.Map<User>(user));
+
+            return Created();
+        } 
 
         /// <summary>
         /// Updates an existing user.
@@ -54,10 +73,18 @@ namespace WebApp.Controllers
         /// <response code="200">The operation of updating is successful.</response>
         /// <response code="404">The user is not found.</response>
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, User updatedUser)
+        public async Task<IActionResult> UpdateUser(int id, UserCreateDto updatedUser)
         {
-            var result = _repository.Update(id, updatedUser);
-            return result ? Ok(result) : NotFound();
+            var existingUser = await _repository.FindAsync(id);
+
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(updatedUser, existingUser);
+            await _repository.UpdateAsync(existingUser);
+            return Ok();
         }
 
         /// <summary>
@@ -68,6 +95,18 @@ namespace WebApp.Controllers
         /// <response code="204">The user is successfully deleted.</response>
         /// <response code="404">The user is not found.</response>
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id) => _repository.Delete(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var existingUser = await _repository.FindAsync(id);
+
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            await _repository.DeleteAsync(existingUser);
+
+            return NoContent();
+        }
     }
 }

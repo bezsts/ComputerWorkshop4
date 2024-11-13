@@ -1,6 +1,10 @@
 ﻿using ApiDomain.Entities;
-using ApiDomain.Repositories;
+using ApiDomain.Repositories.Contracts;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
+using WebApp.Dtos.Movie;
 
 namespace WebApp.Controllers
 {
@@ -9,9 +13,14 @@ namespace WebApp.Controllers
     [Produces("application/json")]
     public class MoviesController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly IMovieRepository _repository;
 
-        public MoviesController(IMovieRepository service) => _repository = service;
+        public MoviesController(IMovieRepository repository, IMapper mapper) 
+        { 
+            _repository = repository;
+            _mapper = mapper;
+        }
 
         /// <summary>
         /// Retrieves all movies.
@@ -19,7 +28,8 @@ namespace WebApp.Controllers
         /// <returns>All Movies.</returns>
         /// <response code="200">Returns all Movies.</response>
         [HttpGet]
-        public IEnumerable<Movie> GetAllMovies() => _repository.GetAll();
+        public Task<List<MovieOutputDto>> GetAllMovies() => 
+            _mapper.ProjectTo<MovieOutputDto>(_repository.GetAll()).ToListAsync();
 
         /// <summary>
         /// Get a specific movie by ID.
@@ -29,10 +39,16 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the movie with the specified ID.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpGet("{id}")]
-        public IActionResult GetMovie(int id)
+        public async Task<ActionResult<MovieOutputDto>> GetMovie(int id)
         {
-            var movie = _repository.Get(id);
-            return movie == null ? NotFound() : Ok(movie);
+            var movie = await _repository.FindAsync(id);
+
+            if (movie == null)
+            { 
+                return NotFound();
+            }
+            var movieDto = _mapper.Map<MovieOutputDto>(movie);
+            return Ok(movieDto);
         }
 
         /// <summary>
@@ -43,7 +59,11 @@ namespace WebApp.Controllers
         /// <response code="201">The movie is successfully added.</response>
         /// <response code="400">The movie data is invalid.</response>
         [HttpPost]
-        public IActionResult CreateMovie(Movie movie) => CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, _repository.Create(movie));
+        public async Task<IActionResult> CreateMovie(MovieCreateDto movie)
+        {
+            await _repository.AddAsync(_mapper.Map<Movie>(movie));
+            return Created();
+        }
 
         /// <summary>
         /// Updates an existing movie.
@@ -54,10 +74,16 @@ namespace WebApp.Controllers
         /// <response code="200">The operation of updating is successful.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpPut("{id}")]
-        public IActionResult UpdateMovie(int id, Movie updatedMovie)
+        public async Task<IActionResult> UpdateMovie(int id, Movie updatedMovie)
         {
-            var result = _repository.Update(id, updatedMovie);
-            return result ? Ok(result) : NotFound();
+            var existingMovie = await _repository.FindAsync(id);
+            if (existingMovie == null)
+            {
+                return NotFound();
+            }
+            _mapper.Map(updatedMovie, existingMovie);
+            await _repository.UpdateAsync(existingMovie);
+            return Ok();
         }
 
         /// <summary>
@@ -68,6 +94,16 @@ namespace WebApp.Controllers
         /// <response code="204">The movie is successfully deleted.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpDelete("{id}")]
-        public IActionResult DeleteMovie(int id) => _repository.Delete(id) ? NoContent() : NotFound();
+        public async Task<IActionResult> DeleteMovie(int id) 
+        {
+            var existingMovie = await _repository.FindAsync(id);
+            if (existingMovie == null)
+            {
+                return NotFound();
+            }
+
+            await _repository.DeleteAsync(existingMovie);
+            return NoContent();
+        }
     }
 }
