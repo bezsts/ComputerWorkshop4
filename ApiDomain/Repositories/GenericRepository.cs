@@ -21,7 +21,7 @@ namespace ApiDomain.Repositories
             return _context.SaveChangesAsync();
         }
 
-        public Task<TEntity?> FindAsync(TKey key)
+        public virtual Task<TEntity?> FindAsync(TKey key)
         {
             return _context.Set<TEntity>().FindAsync(key).AsTask();
         }
