@@ -18,7 +18,7 @@ namespace ApiDomain.Validators
                 .Matches(@"^[a-zA-Z\s]+$").WithMessage("Director's name can only contain letters");
             
             RuleFor(m => m.Genre)
-                .IsInEnum()
+                .IsEnumName(typeof(Genre), caseSensitive: true)
                 .WithMessage($"Invalid genre specified. " +
                 $"Valid options are: {string.Join(", ", Enum.GetNames(typeof(Genre)))}");
 
