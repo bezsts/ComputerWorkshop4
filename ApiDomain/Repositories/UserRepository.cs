@@ -12,6 +12,12 @@ namespace ApiDomain.Repositories
         public override Task<User?> FindAsync(int key) =>
             _context.Set<User>()
             .Include(u => u.WatchedMovies)
-            .FirstOrDefaultAsync(u => u.Id == key);    
+                .ThenInclude(wm => wm.UsersWhoWatched)
+            .FirstOrDefaultAsync(u => u.Id == key);
+
+        public Task<User?> FindByNameAsync(string name) =>
+            _context.Set<User>()
+            .Include(u => u.WatchedMovies)
+            .FirstOrDefaultAsync(u => u.Name.Contains(name));
     }
 }

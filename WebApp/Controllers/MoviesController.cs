@@ -38,13 +38,33 @@ namespace WebApp.Controllers
         /// <returns>The movie with the specified ID.</returns>
         /// <response code="200">Returns the movie with the specified ID.</response>
         /// <response code="404">The movie is not found.</response>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<MovieOutputDto>> GetMovie(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<MovieOutputDto>> GetMovieById(int id)
         {
             var movie = await _repository.FindAsync(id);
 
             if (movie == null)
             { 
+                return NotFound();
+            }
+            var movieDto = _mapper.Map<MovieOutputDto>(movie);
+            return Ok(movieDto);
+        }
+
+        /// <summary>
+        /// Get a specific movie by title.
+        /// </summary>
+        /// <param name="title">The title of the movie to retrieve</param>
+        /// <returns>The movie with the specified title.</returns>
+        /// <response code="200">Returns the movie with the specified title.</response>
+        /// <response code="404">The movie is not found.</response>
+        [HttpGet("{title}")]
+        public async Task<ActionResult<MovieOutputDto>> GetMovieByTitle(string title)
+        {
+            var movie = await _repository.FindMovieByTitleAsync(title);
+
+            if (movie == null)
+            {
                 return NotFound();
             }
             var movieDto = _mapper.Map<MovieOutputDto>(movie);

@@ -3,6 +3,7 @@ using ApiDomain.Repositories.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApp.Dtos.Movie;
 using WebApp.Dtos.User;
 
 namespace WebApp.Controllers
@@ -37,10 +38,29 @@ namespace WebApp.Controllers
         /// <returns>The user with the specified ID.</returns>
         /// <response code="200">Returns the user with the specified ID.</response>
         /// <response code="404">The user is not found.</response>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserOutputDto>> GetUser(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<UserOutputDto>> GetUserById(int id)
         {
             var user = await _repository.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var userDto = _mapper.Map<UserOutputDto>(user);
+            return Ok(userDto);
+        }
+
+        /// <summary>
+        /// Get a specific user by name.
+        /// </summary>
+        /// <param name="name">The name of the user to retrieve</param>
+        /// <returns>The user with the specified name.</returns>
+        /// <response code="200">Returns the user with the specified name.</response>
+        /// <response code="404">The user is not found.</response>
+        [HttpGet("{name}")]
+        public async Task<ActionResult<UserOutputDto>> GetUserByName(string name)
+        { 
+            var user = await _repository.FindByNameAsync(name);
             if (user == null)
             {
                 return NotFound();
@@ -107,6 +127,27 @@ namespace WebApp.Controllers
             await _repository.DeleteAsync(existingUser);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Get a list of watched movies of a specific user by ID.
+        /// </summary>
+        /// <param name="id">The ID of the user</param>
+        /// <returns>The list of movies the user has watched.</returns>
+        /// <response code="200">Returns the list of watched movies of the user with the specified ID.</response>
+        /// <response code="404">The user is not found.</response>
+        [HttpGet("{id}/watched-movies")]
+        public async Task<IActionResult> GetWatchedMoviesOfUser(int id)
+        {
+            var user = await _repository.FindAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var watchedMoviesList = _mapper.Map<List<MovieOutputDto>>(user.WatchedMovies);
+
+            return Ok(watchedMoviesList);
         }
     }
 }
