@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ApiDomain.Enums;
+﻿using ApiDomain.Enums;
 
 namespace ApiDomain.Entities
 {
@@ -13,6 +8,7 @@ namespace ApiDomain.Entities
         public string Title { get; set; } = null!;
         public string Director { get; set; } = null!;
         public Genre Genre { get; set; }
+        public bool IsRealeased { get; set; }
         public DateOnly ReleaseDate { get; set; }
 
         public List<User> UsersWhoWatched { get; set; } = [];
