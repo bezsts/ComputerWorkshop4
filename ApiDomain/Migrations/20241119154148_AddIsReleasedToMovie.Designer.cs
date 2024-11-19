@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiDomain.Migrations
 {
     [DbContext(typeof(DataModelContext))]
-    [Migration("20241119124102_AddIsReleasedToMovie")]
+    [Migration("20241119154148_AddIsReleasedToMovie")]
     partial class AddIsReleasedToMovie
     {
         /// <inheritdoc />
@@ -35,7 +35,7 @@ namespace ApiDomain.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsRealeased")
+                    b.Property<bool>("IsReleased")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(true);

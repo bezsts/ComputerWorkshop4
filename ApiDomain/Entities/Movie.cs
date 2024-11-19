@@ -8,7 +8,7 @@ namespace ApiDomain.Entities
         public string Title { get; set; } = null!;
         public string Director { get; set; } = null!;
         public Genre Genre { get; set; }
-        public bool IsRealeased { get; set; }
+        public bool IsReleased { get; set; }
         public DateOnly ReleaseDate { get; set; }
 
         public List<User> UsersWhoWatched { get; set; } = [];

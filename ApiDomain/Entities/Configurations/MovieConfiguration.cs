@@ -21,7 +21,7 @@ namespace ApiDomain.Entities.Configurations
                 .HasConversion<string>()
                 .IsRequired();
 
-            builder.Property(m => m.IsRealeased)
+            builder.Property(m => m.IsReleased)
                 .IsRequired()
                 .HasDefaultValue(true);
 

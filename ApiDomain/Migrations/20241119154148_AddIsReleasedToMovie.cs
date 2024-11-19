@@ -22,7 +22,7 @@ namespace ApiDomain.Migrations
                 oldDefaultValue: new DateOnly(2024, 11, 12));
 
             migrationBuilder.AddColumn<bool>(
-                name: "IsRealeased",
+                name: "IsReleased",
                 table: "Movie",
                 type: "INTEGER",
                 nullable: false,
@@ -33,7 +33,7 @@ namespace ApiDomain.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsRealeased",
+                name: "IsReleased",
                 table: "Movie");
 
             migrationBuilder.AlterColumn<DateOnly>(

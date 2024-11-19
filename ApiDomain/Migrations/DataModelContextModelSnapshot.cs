@@ -32,7 +32,7 @@ namespace ApiDomain.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsRealeased")
+                    b.Property<bool>("IsReleased")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(true);
