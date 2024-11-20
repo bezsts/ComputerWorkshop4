@@ -10,7 +10,6 @@ namespace ApiDomain.Entities
         public Genre Genre { get; set; }
         public bool IsReleased { get; set; }
         public DateOnly ReleaseDate { get; set; }
-
         public List<User> UsersWhoWatched { get; set; } = [];
     }
 }

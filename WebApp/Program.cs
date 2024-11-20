@@ -1,7 +1,5 @@
 using ApiDomain;
-using ApiDomain.Entities;
 using ApiDomain.Services;
-using ApiDomain.Validators;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -19,10 +17,13 @@ namespace ComputerWorkshop2
             builder.Services.AddControllers();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddRepositories();
+
             builder.Services.AddDbContext<DataModelContext>(contextOptions =>
                 contextOptions.UseSqlite("Data Source=Database/sample.db"));
+
             builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             builder.Services.AddFluentValidationAutoValidation();
+
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo

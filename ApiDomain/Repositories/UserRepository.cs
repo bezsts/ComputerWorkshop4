@@ -1,5 +1,4 @@
 ﻿using ApiDomain.Entities;
-using ApiDomain.Enums;
 using ApiDomain.Repositories.Contracts;
 using Microsoft.EntityFrameworkCore;
 

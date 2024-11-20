@@ -1,6 +1,4 @@
-﻿using ApiDomain.Enums;
-
-namespace WebApp.Dtos.Movie
+﻿namespace WebApp.Dtos.Movie
 {
     public class MovieCreateDto
     {
