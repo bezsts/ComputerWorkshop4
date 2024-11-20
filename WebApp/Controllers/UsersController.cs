@@ -14,11 +14,11 @@ namespace WebApp.Controllers
     public class UsersController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly IUserRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UsersController(IMapper mapper, IUserRepository repository) 
+        public UsersController(IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -28,8 +28,8 @@ namespace WebApp.Controllers
         /// <returns>All Users.</returns>
         /// <response code="200">Returns all Users.</response>
         [HttpGet]
-        public Task<List<UserOutputDto>> GetAllUsers() => 
-            _mapper.ProjectTo<UserOutputDto>(_repository.GetAll()).ToListAsync();
+        public Task<List<UserOutputDto>> GetAllUsers() =>
+            _mapper.ProjectTo<UserOutputDto>(_unitOfWork.Users.GetAll()).ToListAsync();
 
         /// <summary>
         /// Get a specific user by ID.
@@ -41,7 +41,7 @@ namespace WebApp.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<UserOutputDto>> GetUserById(int id)
         {
-            var user = await _repository.FindAsync(id);
+            var user = await _unitOfWork.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -59,8 +59,8 @@ namespace WebApp.Controllers
         /// <response code="404">The user is not found.</response>
         [HttpGet("{name}")]
         public async Task<ActionResult<UserOutputDto>> GetUserByName(string name)
-        { 
-            var user = await _repository.FindByNameAsync(name);
+        {
+            var user = await _unitOfWork.Users.FindByNameAsync(name);
             if (user == null)
             {
                 return NotFound();
@@ -77,12 +77,12 @@ namespace WebApp.Controllers
         /// <response code="201">The user is successfully added.</response>
         /// <response code="400">The user data is invalid.</response>
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserCreateDto user) 
+        public async Task<IActionResult> CreateUser(UserCreateDto user)
         {
-            await _repository.AddAsync(_mapper.Map<User>(user));
+            await _unitOfWork.Users.AddAsync(_mapper.Map<User>(user));
 
             return Created();
-        } 
+        }
 
         /// <summary>
         /// Updates an existing user.
@@ -95,7 +95,7 @@ namespace WebApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, UserCreateDto updatedUser)
         {
-            var existingUser = await _repository.FindAsync(id);
+            var existingUser = await _unitOfWork.Users.FindAsync(id);
 
             if (existingUser == null)
             {
@@ -103,7 +103,7 @@ namespace WebApp.Controllers
             }
 
             _mapper.Map(updatedUser, existingUser);
-            await _repository.UpdateAsync(existingUser);
+            await _unitOfWork.Users.UpdateAsync(existingUser);
             return Ok();
         }
 
@@ -117,14 +117,14 @@ namespace WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var existingUser = await _repository.FindAsync(id);
+            var existingUser = await _unitOfWork.Users.FindAsync(id);
 
             if (existingUser == null)
             {
                 return NotFound();
             }
 
-            await _repository.DeleteAsync(existingUser);
+            await _unitOfWork.Users.DeleteAsync(existingUser);
 
             return NoContent();
         }
@@ -139,7 +139,7 @@ namespace WebApp.Controllers
         [HttpGet("{id}/watched-movies")]
         public async Task<IActionResult> GetWatchedMoviesOfUser(int id)
         {
-            var user = await _repository.FindAsync(id);
+            var user = await _unitOfWork.Users.FindAsync(id);
 
             if (user == null)
             {

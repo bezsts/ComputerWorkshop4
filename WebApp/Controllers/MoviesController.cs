@@ -3,7 +3,6 @@ using ApiDomain.Repositories.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 using WebApp.Dtos.Movie;
 
 namespace WebApp.Controllers
@@ -14,11 +13,11 @@ namespace WebApp.Controllers
     public class MoviesController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly IMovieRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MoviesController(IMovieRepository repository, IMapper mapper) 
-        { 
-            _repository = repository;
+        public MoviesController(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -28,8 +27,8 @@ namespace WebApp.Controllers
         /// <returns>All Movies.</returns>
         /// <response code="200">Returns all Movies.</response>
         [HttpGet]
-        public Task<List<MovieOutputDto>> GetAllMovies() => 
-            _mapper.ProjectTo<MovieOutputDto>(_repository.GetAll()).ToListAsync();
+        public Task<List<MovieOutputDto>> GetAllMovies() =>
+            _mapper.ProjectTo<MovieOutputDto>(_unitOfWork.Movies.GetAll()).ToListAsync();
 
         /// <summary>
         /// Get a specific movie by ID.
@@ -41,10 +40,10 @@ namespace WebApp.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<MovieOutputDto>> GetMovieById(int id)
         {
-            var movie = await _repository.FindAsync(id);
+            var movie = await _unitOfWork.Movies.FindAsync(id);
 
             if (movie == null)
-            { 
+            {
                 return NotFound();
             }
             var movieDto = _mapper.Map<MovieOutputDto>(movie);
@@ -61,7 +60,7 @@ namespace WebApp.Controllers
         [HttpGet("{title}")]
         public async Task<ActionResult<MovieOutputDto>> GetMovieByTitle(string title)
         {
-            var movie = await _repository.FindMovieByTitleAsync(title);
+            var movie = await _unitOfWork.Movies.FindMovieByTitleAsync(title);
 
             if (movie == null)
             {
@@ -81,7 +80,7 @@ namespace WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMovie(MovieCreateDto movie)
         {
-            await _repository.AddAsync(_mapper.Map<Movie>(movie));
+            await _unitOfWork.Movies.AddAsync(_mapper.Map<Movie>(movie));
             return Created();
         }
 
@@ -96,13 +95,13 @@ namespace WebApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMovie(int id, MovieCreateDto updatedMovie)
         {
-            var existingMovie = await _repository.FindAsync(id);
+            var existingMovie = await _unitOfWork.Movies.FindAsync(id);
             if (existingMovie == null)
             {
                 return NotFound();
             }
             _mapper.Map(updatedMovie, existingMovie);
-            await _repository.UpdateAsync(existingMovie);
+            await _unitOfWork.Movies.UpdateAsync(existingMovie);
             return Ok();
         }
 
@@ -114,15 +113,15 @@ namespace WebApp.Controllers
         /// <response code="204">The movie is successfully deleted.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMovie(int id) 
+        public async Task<IActionResult> DeleteMovie(int id)
         {
-            var existingMovie = await _repository.FindAsync(id);
+            var existingMovie = await _unitOfWork.Movies.FindAsync(id);
             if (existingMovie == null)
             {
                 return NotFound();
             }
 
-            await _repository.DeleteAsync(existingMovie);
+            await _unitOfWork.Movies.DeleteAsync(existingMovie);
             return NoContent();
         }
     }
