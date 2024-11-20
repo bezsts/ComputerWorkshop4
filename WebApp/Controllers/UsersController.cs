@@ -149,5 +149,64 @@ namespace WebApp.Controllers
 
             return Ok(watchedMoviesList);
         }
+
+        /// <summary>
+        /// Adds a movie to the watched list of a specific user.
+        /// </summary>
+        /// <param name="id">The ID of the user.</param>
+        /// <param name="movieId">The ID of the movie to add to the watched list.</param>
+        /// <returns>A response indicating the result of the operation.</returns>
+        /// <response code="200">The movie was successfully added to the user's watched list.</response>
+        /// <response code="404">The user or movie was not found.</response>
+        /// <response code="409">The movie is already in the user's watched list.</response>
+        [HttpPut("{id}/watched-movies/{movieId}")]
+        public async Task<IActionResult> AddWatchedMovie(int id, int movieId)
+        {
+            var user = await _unitOfWork.Users.FindAsync(id);
+            var movie = await _unitOfWork.Movies.FindAsync(movieId);
+
+            if (user is null || movie is null)
+            {
+                return NotFound();
+            }
+
+            if (user.WatchedMovies.Contains(movie))
+            { 
+                return Conflict();
+            }
+
+            user.WatchedMovies.Add(movie);
+            await _unitOfWork.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Removes a movie from the user's list of watched movies by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the user whose watched movies list is being updated.</param>
+        /// <param name="movieId">The ID of the movie to remove from the user's watched movies list.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="204">The movie was successfully removed from the user's watched movies list.</response>
+        /// <response code="404">The user or the movie was not found, or the movie is not in the user's watched movies list.</response>
+        [HttpDelete("{id}/watched-movies/{movieId}")]
+        public async Task<IActionResult> RemoveWatchedMovie(int id, int movieId)
+        {
+            var user = await _unitOfWork.Users.FindAsync(id);
+            var movie = await _unitOfWork.Movies.FindAsync(movieId);
+
+            if (user is null || movie is null)
+            {
+                return NotFound();
+            }
+
+            if (!user.WatchedMovies.Contains(movie))
+            {
+                return NotFound();
+            }
+
+            user.WatchedMovies.Remove(movie);
+            await _unitOfWork.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
