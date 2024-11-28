@@ -16,6 +16,6 @@ namespace ApiDomain.Repositories
         public Task<Movie?> FindMovieByTitleAsync(string title) =>
             _context.Set<Movie>()
             .Include(m => m.UsersWhoWatched)
-            .FirstOrDefaultAsync(m => m.Title.Contains(title));
+            .FirstOrDefaultAsync(m => m.Title.ToLower().Contains(title));
     }
 }
