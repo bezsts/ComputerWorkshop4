@@ -15,11 +15,13 @@ namespace WebApp.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IMapper mapper, IUnitOfWork unitOfWork)
+        public UsersController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<UsersController> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,8 +30,15 @@ namespace WebApp.Controllers
         /// <returns>All Users.</returns>
         /// <response code="200">Returns all Users.</response>
         [HttpGet]
-        public Task<List<UserOutputDto>> GetAllUsers() =>
-            _mapper.ProjectTo<UserOutputDto>(_unitOfWork.Users.GetAll()).ToListAsync();
+        public async Task<List<UserOutputDto>> GetAllUsers()
+        {
+            var users = await _mapper.ProjectTo<UserOutputDto>(_unitOfWork.Users.GetAll()).ToListAsync();
+
+            _logger.LogInformation("{MethodName} returned {UsersCount} users",
+                    nameof(GetAllUsers), users.Count);
+
+            return users;
+        }
 
         /// <summary>
         /// Get a specific user by ID.
@@ -44,9 +53,16 @@ namespace WebApp.Controllers
             var user = await _unitOfWork.Users.FindAsync(id);
             if (user == null)
             {
+                _logger.LogWarning("User with ID {Id} is not found in {MethodName}",
+                    id, nameof(GetUserById));
+
                 return NotFound();
             }
             var userDto = _mapper.Map<UserOutputDto>(user);
+
+            _logger.LogInformation("{MethodName} returned user by ID {Id}",
+                nameof(GetUserById), id);
+
             return Ok(userDto);
         }
 
@@ -63,23 +79,33 @@ namespace WebApp.Controllers
             var user = await _unitOfWork.Users.FindByNameAsync(name);
             if (user == null)
             {
+                _logger.LogWarning("User with name {Name} is not found in {MethodName}",
+                    name, nameof(GetUserByName));
                 return NotFound();
             }
             var userDto = _mapper.Map<UserOutputDto>(user);
+
+            _logger.LogInformation("{MethodName} returned user by name {Id} {Name}",
+                nameof(GetUserByName), userDto.Id, userDto.Name);
+
             return Ok(userDto);
         }
 
         /// <summary>
         /// Creates a new user.
         /// </summary>
-        /// <param name="user">The user object to be created</param>
+        /// <param name="userDto">The Dto of user object to be created</param>
         /// <returns>The created user.</returns>
         /// <response code="201">The user is successfully added.</response>
         /// <response code="400">The user data is invalid.</response>
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserCreateDto user)
+        public async Task<IActionResult> CreateUser(UserCreateDto userDto)
         {
-            await _unitOfWork.Users.AddAsync(_mapper.Map<User>(user));
+            var user = _mapper.Map<User>(userDto);
+            await _unitOfWork.Users.AddAsync(_mapper.Map<User>(userDto));
+
+            _logger.LogInformation("{MethodName} created user with ID {Id}",
+                nameof(CreateUser), user.Id);
 
             return Created();
         }
@@ -99,11 +125,18 @@ namespace WebApp.Controllers
 
             if (existingUser == null)
             {
+                _logger.LogWarning("User with ID {Id} is not found in {MethodName}",
+                    id, nameof(UpdateUser));
+
                 return NotFound();
             }
 
             _mapper.Map(updatedUser, existingUser);
             await _unitOfWork.Users.UpdateAsync(existingUser);
+
+            _logger.LogInformation("{MethodName} updated user with ID {Id}",
+                nameof(UpdateUser), id);
+
             return Ok();
         }
 
@@ -121,10 +154,16 @@ namespace WebApp.Controllers
 
             if (existingUser == null)
             {
+                _logger.LogWarning("User with ID {Id} is not found in {MethodName}",
+                    id, nameof(DeleteUser));
+
                 return NotFound();
             }
 
             await _unitOfWork.Users.DeleteAsync(existingUser);
+
+            _logger.LogInformation("{MethodName} deleted user with ID {Id}",
+                nameof(DeleteUser), id);
 
             return NoContent();
         }
@@ -143,9 +182,15 @@ namespace WebApp.Controllers
 
             if (user == null)
             {
+                _logger.LogWarning("User with ID {Id} is not found in {MethodName}",
+                    id, nameof(GetWatchedMoviesOfUser));
+
                 return NotFound();
             }
             var watchedMoviesList = _mapper.Map<List<MovieOutputDto>>(user.WatchedMovies);
+
+            _logger.LogInformation("{MethodName} returned {MoviesCount} watched movies of user with ID {Id}",
+                    nameof(GetWatchedMoviesOfUser), watchedMoviesList.Count, id);
 
             return Ok(watchedMoviesList);
         }
@@ -165,17 +210,34 @@ namespace WebApp.Controllers
             var user = await _unitOfWork.Users.FindAsync(id);
             var movie = await _unitOfWork.Movies.FindAsync(movieId);
 
-            if (user is null || movie is null)
+            if (user is null)
             {
+                _logger.LogWarning("User with ID {UserId} is not found in {MethodName}",
+                    id, nameof(AddWatchedMovie));
+
+                return NotFound();
+            }
+
+            if (movie is null)
+            {
+                _logger.LogWarning("Movie with ID {MovieId} is not found in {MethodName}",
+                    movieId, nameof(AddWatchedMovie));
+
                 return NotFound();
             }
 
             if (user.WatchedMovies.Contains(movie))
-            { 
+            {
+                _logger.LogWarning("User with ID {UserId} already has movie with ID {MovieId} in watched movies in {MethodName}",
+                    id, movieId, nameof(AddWatchedMovie));
                 return Conflict();
             }
 
             user.WatchedMovies.Add(movie);
+
+            _logger.LogInformation("Movie with ID {MovieId} is added to watched movies of user with ID {UserId} in {MethodName}",
+                movieId, id, nameof(AddWatchedMovie));
+
             await _unitOfWork.SaveChangesAsync();
             return Ok();
         }
@@ -194,17 +256,34 @@ namespace WebApp.Controllers
             var user = await _unitOfWork.Users.FindAsync(id);
             var movie = await _unitOfWork.Movies.FindAsync(movieId);
 
-            if (user is null || movie is null)
+            if (user is null)
             {
+                _logger.LogWarning("User with ID {UserId} is not found in {MethodName}",
+                    id, nameof(RemoveWatchedMovie));
+
+                return NotFound();
+            }
+
+            if (movie is null)
+            {
+                _logger.LogWarning("Movie with ID {MovieId} is not found in {MethodName}",
+                    movieId, nameof(RemoveWatchedMovie));
+
                 return NotFound();
             }
 
             if (!user.WatchedMovies.Contains(movie))
             {
+                _logger.LogWarning("Movie with ID {MovieId} is not found in watched movies of user with ID {UserId} in {MethodName}",
+                    movieId, id, nameof(RemoveWatchedMovie));
                 return NotFound();
             }
 
             user.WatchedMovies.Remove(movie);
+
+            _logger.LogInformation("Movie with ID {MovieId} is removed from watched movies of user with ID {UserId} in {MethodName}",
+                movieId, id, nameof(RemoveWatchedMovie));
+
             await _unitOfWork.SaveChangesAsync();
             return NoContent();
         }
