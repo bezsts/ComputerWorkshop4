@@ -3,6 +3,7 @@ using ApiDomain.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
 
@@ -13,6 +14,9 @@ namespace ComputerWorkshop2
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Logging.ClearProviders();
+            builder.Host.UseSerilog((context, config) => config.ReadFrom.Configuration(context.Configuration));
 
             builder.Services.AddControllers();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -45,6 +49,7 @@ namespace ComputerWorkshop2
                 app.UseSwaggerUI();
             }
 
+            app.UseSerilogRequestLogging();
             app.MapControllers();
 
             app.Run();
