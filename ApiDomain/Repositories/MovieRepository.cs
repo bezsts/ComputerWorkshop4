@@ -17,5 +17,10 @@ namespace ApiDomain.Repositories
             _context.Set<Movie>()
             .Include(m => m.UsersWhoWatched)
             .FirstOrDefaultAsync(m => m.Title.ToLower().Contains(title));
+
+        public IQueryable<Movie> GetMostPopularMovies() =>
+            _context.Set<Movie>()
+            .OrderByDescending(m => m.UsersWhoWatched.Count)
+            .Take(5);
     }
 }
