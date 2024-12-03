@@ -3,6 +3,7 @@ using ApiDomain.Repositories.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using WebApp.Dtos.Movie;
 
 namespace WebApp.Controllers
@@ -15,12 +16,15 @@ namespace WebApp.Controllers
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<MoviesController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public MoviesController(IUnitOfWork unitOfWork, IMapper mapper, ILogger<MoviesController> logger)
+        public MoviesController(IUnitOfWork unitOfWork, IMapper mapper, 
+                                ILogger<MoviesController> logger, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         /// <summary>
@@ -161,6 +165,36 @@ namespace WebApp.Controllers
                 nameof(DeleteMovie), id);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Retrieves a list of popular movies, either from the cache or by querying the database.
+        /// </summary>
+        /// <returns>A list of popular movies as <see cref="MovieOutputDto"/> objects.</returns>
+        /// <response code="200">Returns a list of popular movies.</response>
+        /// <response code="500">Internal server error if there is a failure during database query or caching.</response>
+        [HttpGet("popular")]
+        public async Task<List<MovieOutputDto>> GetPopularMovies()
+        {
+            var popularMovies = await _memoryCache.GetOrCreateAsync(nameof(GetPopularMovies), async cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+
+
+                var popularMoviesQuery = _unitOfWork.Movies.GetMostPopularMovies();
+                return await _mapper.ProjectTo<MovieOutputDto>(popularMoviesQuery).ToListAsync();
+            });
+
+            if (popularMovies != null && popularMovies.Any())
+            {
+                _logger.LogInformation("{MethodName} successfully retrieved popular movies from cache.", nameof(GetPopularMovies));
+            }
+            else
+            {
+                _logger.LogWarning("{MethodName} no popular movies found in cache.", nameof(GetPopularMovies));
+            }
+
+            return popularMovies ?? new List<MovieOutputDto>();
         }
     }
 }

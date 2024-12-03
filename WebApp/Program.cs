@@ -19,6 +19,7 @@ namespace ComputerWorkshop2
             builder.Host.UseSerilog((context, config) => config.ReadFrom.Configuration(context.Configuration));
 
             builder.Services.AddControllers();
+            builder.Services.AddMemoryCache();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddRepositories();
 
