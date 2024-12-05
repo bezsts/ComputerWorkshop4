@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using WebApp.Options;
 using WebApp.Services;
 
 namespace ComputerWorkshop2
@@ -24,6 +25,9 @@ namespace ComputerWorkshop2
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddRepositories();
             builder.Services.AddServices();
+
+            builder.Services.Configure<ExportMoviesOptions>(builder.Configuration.GetSection("ExportMoviesOptions"));
+            builder.Services.AddOptions<CsvOptions>().BindConfiguration("ExportMoviesOptions:CsvOptions");
 
             builder.Services.AddDbContext<DataModelContext>(contextOptions =>
                 contextOptions.UseSqlite("Data Source=Database/sample.db"));
