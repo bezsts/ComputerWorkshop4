@@ -17,6 +17,6 @@ namespace ApiDomain.Repositories
         public Task<User?> FindByNameAsync(string name) =>
             _context.Set<User>()
             .Include(u => u.WatchedMovies)
-            .FirstOrDefaultAsync(u => u.Name.ToLower().Contains(name));
+            .FirstOrDefaultAsync(u => u.Name.ToLower().Contains(name.ToLower()));
     }
 }
