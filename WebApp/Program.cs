@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using WebApp.Services;
 
 namespace ComputerWorkshop2
 {
@@ -22,6 +23,7 @@ namespace ComputerWorkshop2
             builder.Services.AddMemoryCache();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddRepositories();
+            builder.Services.AddServices();
 
             builder.Services.AddDbContext<DataModelContext>(contextOptions =>
                 contextOptions.UseSqlite("Data Source=Database/sample.db"));

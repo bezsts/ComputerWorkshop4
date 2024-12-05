@@ -1,10 +1,7 @@
-﻿using ApiDomain.Entities;
-using ApiDomain.Repositories.Contracts;
-using AutoMapper;
+﻿using ApiDomain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApp.Dtos.Movie;
 using WebApp.Dtos.User;
+using WebApp.Services.Contracts;
 
 namespace WebApp.Controllers
 {
@@ -13,14 +10,12 @@ namespace WebApp.Controllers
     [Produces("application/json")]
     public class UsersController : Controller
     {
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserService _service;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IMapper mapper, IUnitOfWork unitOfWork, ILogger<UsersController> logger)
+        public UsersController(IUserService service, ILogger<UsersController> logger)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _service = service;
             _logger = logger;
         }
 
@@ -30,14 +25,14 @@ namespace WebApp.Controllers
         /// <returns>All Users.</returns>
         /// <response code="200">Returns all Users.</response>
         [HttpGet]
-        public async Task<List<UserOutputDto>> GetAllUsers()
+        public async Task<ActionResult<List<UserWatchedMoviesCountOutputDto>>> GetAllUsers()
         {
-            var users = await _mapper.ProjectTo<UserOutputDto>(_unitOfWork.Users.GetAll()).ToListAsync();
+            var users = await _service.GetAllUsersAsync();
 
             _logger.LogInformation("{MethodName} returned {UsersCount} users",
                     nameof(GetAllUsers), users.Count);
 
-            return users;
+            return Ok(users);
         }
 
         /// <summary>
@@ -48,9 +43,9 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the user with the specified ID.</response>
         /// <response code="404">The user is not found.</response>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<UserOutputDto>> GetUserById(int id)
+        public async Task<ActionResult<UserWatchedMoviesCountOutputDto>> GetUserById(int id)
         {
-            var user = await _unitOfWork.Users.FindAsync(id);
+            var user = await _service.GetUserByIdAsync(id);
             if (user == null)
             {
                 _logger.LogWarning("User with ID {Id} is not found in {MethodName}",
@@ -58,12 +53,8 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-            var userDto = _mapper.Map<UserOutputDto>(user);
 
-            _logger.LogInformation("{MethodName} returned user by ID {Id}",
-                nameof(GetUserById), id);
-
-            return Ok(userDto);
+            return Ok(user);
         }
 
         /// <summary>
@@ -74,21 +65,17 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the user with the specified name.</response>
         /// <response code="404">The user is not found.</response>
         [HttpGet("{name}")]
-        public async Task<ActionResult<UserOutputDto>> GetUserByName(string name)
+        public async Task<ActionResult<UserWatchedMoviesCountOutputDto>> GetUserByName(string name)
         {
-            var user = await _unitOfWork.Users.FindByNameAsync(name);
+            var user = await _service.GetUserByNameAsync(name);
             if (user == null)
             {
                 _logger.LogWarning("User with name {Name} is not found in {MethodName}",
                     name, nameof(GetUserByName));
                 return NotFound();
             }
-            var userDto = _mapper.Map<UserOutputDto>(user);
 
-            _logger.LogInformation("{MethodName} returned user by name {Id} {Name}",
-                nameof(GetUserByName), userDto.Id, userDto.Name);
-
-            return Ok(userDto);
+            return Ok(user);
         }
 
         /// <summary>
@@ -99,15 +86,14 @@ namespace WebApp.Controllers
         /// <response code="201">The user is successfully added.</response>
         /// <response code="400">The user data is invalid.</response>
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserCreateDto userDto)
+        public async Task<ActionResult<UserWatchedMoviesCountOutputDto>> CreateUser(UserCreateDto userDto)
         {
-            var user = _mapper.Map<User>(userDto);
-            await _unitOfWork.Users.AddAsync(_mapper.Map<User>(userDto));
+            var user = await _service.CreateUserAsync(userDto);
 
             _logger.LogInformation("{MethodName} created user with ID {Id}",
                 nameof(CreateUser), user.Id);
 
-            return Created();
+            return Created(nameof(CreateUser), user);
         }
 
         /// <summary>
@@ -119,9 +105,9 @@ namespace WebApp.Controllers
         /// <response code="200">The operation of updating is successful.</response>
         /// <response code="404">The user is not found.</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, UserCreateDto updatedUser)
+        public async Task<ActionResult<UserWatchedMoviesCountOutputDto>> UpdateUser(int id, UserCreateDto updatedUser)
         {
-            var existingUser = await _unitOfWork.Users.FindAsync(id);
+            var existingUser = await _service.UpdateUserAsync(id, updatedUser);
 
             if (existingUser == null)
             {
@@ -130,14 +116,7 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-
-            _mapper.Map(updatedUser, existingUser);
-            await _unitOfWork.Users.UpdateAsync(existingUser);
-
-            _logger.LogInformation("{MethodName} updated user with ID {Id}",
-                nameof(UpdateUser), id);
-
-            return Ok();
+            return Ok(existingUser);
         }
 
         /// <summary>
@@ -150,7 +129,7 @@ namespace WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var existingUser = await _unitOfWork.Users.FindAsync(id);
+            var existingUser = await _service.DeleteUserAsync(id);
 
             if (existingUser == null)
             {
@@ -159,11 +138,6 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-
-            await _unitOfWork.Users.DeleteAsync(existingUser);
-
-            _logger.LogInformation("{MethodName} deleted user with ID {Id}",
-                nameof(DeleteUser), id);
 
             return NoContent();
         }
@@ -176,9 +150,9 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the list of watched movies of the user with the specified ID.</response>
         /// <response code="404">The user is not found.</response>
         [HttpGet("{id}/watched-movies")]
-        public async Task<IActionResult> GetWatchedMoviesOfUser(int id)
+        public async Task<ActionResult<UserWatchedMoviesListOutputDto>> GetWatchedMoviesOfUser(int id)
         {
-            var user = await _unitOfWork.Users.FindAsync(id);
+            var user = await _service.GetWatchedMoviesOfUserAsync(id);
 
             if (user == null)
             {
@@ -187,12 +161,8 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-            var watchedMoviesList = _mapper.Map<List<MovieOutputDto>>(user.WatchedMovies);
 
-            _logger.LogInformation("{MethodName} returned {MoviesCount} watched movies of user with ID {Id}",
-                    nameof(GetWatchedMoviesOfUser), watchedMoviesList.Count, id);
-
-            return Ok(watchedMoviesList);
+            return Ok(user);
         }
 
         /// <summary>
@@ -205,41 +175,34 @@ namespace WebApp.Controllers
         /// <response code="404">The user or movie was not found.</response>
         /// <response code="409">The movie is already in the user's watched list.</response>
         [HttpPut("{id}/watched-movies/{movieId}")]
-        public async Task<IActionResult> AddWatchedMovie(int id, int movieId)
+        public async Task<ActionResult<UserWatchedMoviesListOutputDto>> AddWatchedMovie(int id, int movieId)
         {
-            var user = await _unitOfWork.Users.FindAsync(id);
-            var movie = await _unitOfWork.Movies.FindAsync(movieId);
-
-            if (user is null)
+            UserWatchedMoviesListOutputDto user = new UserWatchedMoviesListOutputDto();
+            try
+            {
+                user = await _service.AddWatchedMovieAsync(id, movieId);
+            }
+            catch (UserNotFoundException)
             {
                 _logger.LogWarning("User with ID {UserId} is not found in {MethodName}",
                     id, nameof(AddWatchedMovie));
 
                 return NotFound();
             }
-
-            if (movie is null)
+            catch (MovieNotFoundException)
             {
                 _logger.LogWarning("Movie with ID {MovieId} is not found in {MethodName}",
                     movieId, nameof(AddWatchedMovie));
 
                 return NotFound();
             }
-
-            if (user.WatchedMovies.Contains(movie))
+            catch (MovieConflictException)
             {
                 _logger.LogWarning("User with ID {UserId} already has movie with ID {MovieId} in watched movies in {MethodName}",
                     id, movieId, nameof(AddWatchedMovie));
                 return Conflict();
             }
-
-            user.WatchedMovies.Add(movie);
-
-            _logger.LogInformation("Movie with ID {MovieId} is added to watched movies of user with ID {UserId} in {MethodName}",
-                movieId, id, nameof(AddWatchedMovie));
-
-            await _unitOfWork.SaveChangesAsync();
-            return Ok();
+            return Ok(user);
         }
 
         /// <summary>
@@ -253,38 +216,25 @@ namespace WebApp.Controllers
         [HttpDelete("{id}/watched-movies/{movieId}")]
         public async Task<IActionResult> RemoveWatchedMovie(int id, int movieId)
         {
-            var user = await _unitOfWork.Users.FindAsync(id);
-            var movie = await _unitOfWork.Movies.FindAsync(movieId);
-
-            if (user is null)
+            try
+            {
+                var user = await _service.RemoveWatchedMovieAsync(id, movieId);
+            }
+            catch (UserNotFoundException)
             {
                 _logger.LogWarning("User with ID {UserId} is not found in {MethodName}",
-                    id, nameof(RemoveWatchedMovie));
+                    id, nameof(AddWatchedMovie));
 
                 return NotFound();
             }
-
-            if (movie is null)
+            catch (MovieNotFoundException exception)
             {
+                _logger.LogWarning(exception.Message, movieId, nameof(AddWatchedMovie));
                 _logger.LogWarning("Movie with ID {MovieId} is not found in {MethodName}",
-                    movieId, nameof(RemoveWatchedMovie));
+                    movieId, nameof(AddWatchedMovie));
 
                 return NotFound();
             }
-
-            if (!user.WatchedMovies.Contains(movie))
-            {
-                _logger.LogWarning("Movie with ID {MovieId} is not found in watched movies of user with ID {UserId} in {MethodName}",
-                    movieId, id, nameof(RemoveWatchedMovie));
-                return NotFound();
-            }
-
-            user.WatchedMovies.Remove(movie);
-
-            _logger.LogInformation("Movie with ID {MovieId} is removed from watched movies of user with ID {UserId} in {MethodName}",
-                movieId, id, nameof(RemoveWatchedMovie));
-
-            await _unitOfWork.SaveChangesAsync();
             return NoContent();
         }
     }

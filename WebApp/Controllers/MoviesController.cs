@@ -1,10 +1,6 @@
-﻿using ApiDomain.Entities;
-using ApiDomain.Repositories.Contracts;
-using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApp.Dtos.Movie;
+using WebApp.Services.Contracts;
 
 namespace WebApp.Controllers
 {
@@ -13,18 +9,13 @@ namespace WebApp.Controllers
     [Produces("application/json")]
     public class MoviesController : Controller
     {
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMovieService _service;
         private readonly ILogger<MoviesController> _logger;
-        private readonly IMemoryCache _memoryCache;
 
-        public MoviesController(IUnitOfWork unitOfWork, IMapper mapper, 
-                                ILogger<MoviesController> logger, IMemoryCache memoryCache)
+        public MoviesController(IMovieService service, ILogger<MoviesController> logger)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _service = service;
             _logger = logger;
-            _memoryCache = memoryCache;
         }
 
         /// <summary>
@@ -33,13 +24,13 @@ namespace WebApp.Controllers
         /// <returns>All Movies.</returns>
         /// <response code="200">Returns all Movies.</response>
         [HttpGet]
-        public async Task<List<MovieOutputDto>> GetAllMovies()
+        public async Task<ActionResult<List<MovieViewsOutputDto>>> GetAllMovies()
         {
-            var movies = await _mapper.ProjectTo<MovieOutputDto>(_unitOfWork.Movies.GetAll()).ToListAsync();
+            var movies = await _service.GetAllMoviesAsync();
 
             _logger.LogInformation("{MethodName} returned {MoviesCount} movies",
                 nameof(GetAllMovies), movies.Count);
-            return movies;
+            return Ok(movies);
         }
 
         /// <summary>
@@ -50,9 +41,9 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the movie with the specified ID.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<MovieOutputDto>> GetMovieById(int id)
+        public async Task<ActionResult<MovieViewsOutputDto>> GetMovieById(int id)
         {
-            var movie = await _unitOfWork.Movies.FindAsync(id);
+            var movie = await _service.GetMovieByIdAsync(id);
 
             if (movie == null)
             {
@@ -62,11 +53,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var movieDto = _mapper.Map<MovieOutputDto>(movie);
-            _logger.LogInformation("{MethodName} returned movie by ID {Id}",
-                nameof(GetMovieById), id);
-
-            return Ok(movieDto);
+            return Ok(movie);
         }
 
         /// <summary>
@@ -77,9 +64,9 @@ namespace WebApp.Controllers
         /// <response code="200">Returns the movie with the specified title.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpGet("{title}")]
-        public async Task<ActionResult<MovieOutputDto>> GetMovieByTitle(string title)
+        public async Task<ActionResult<MovieViewsOutputDto>> GetMovieByTitle(string title)
         {
-            var movie = await _unitOfWork.Movies.FindMovieByTitleAsync(title);
+            var movie = await _service.GetMovieByTitleAsync(title);
 
             if (movie == null)
             {
@@ -87,10 +74,8 @@ namespace WebApp.Controllers
                     title, nameof(GetMovieByTitle));
                 return NotFound();
             }
-            var movieDto = _mapper.Map<MovieOutputDto>(movie);
-            _logger.LogInformation("{MethodName} returned movie by title {Id} {Title}",
-                nameof(GetMovieById), movieDto.Id, movieDto.Title);
-            return Ok(movieDto);
+
+            return Ok(movie);
         }
 
         /// <summary>
@@ -101,15 +86,14 @@ namespace WebApp.Controllers
         /// <response code="201">The movie is successfully added.</response>
         /// <response code="400">The movie data is invalid.</response>
         [HttpPost]
-        public async Task<IActionResult> CreateMovie(MovieCreateDto movieDto)
+        public async Task<ActionResult<MovieOutputDto>> CreateMovie(MovieCreateDto movieDto)
         {
-            var movie = _mapper.Map<Movie>(movieDto);
-            await _unitOfWork.Movies.AddAsync(movie);
+            var movie = await _service.CreateMovieAsync(movieDto);
 
             _logger.LogInformation("{MethodName} created movie with ID {Id}",
                 nameof(CreateMovie), movie.Id);
 
-            return Created();
+            return Created(nameof(CreateMovie), movie);
         }
 
         /// <summary>
@@ -121,9 +105,9 @@ namespace WebApp.Controllers
         /// <response code="200">The operation of updating is successful.</response>
         /// <response code="404">The movie is not found.</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMovie(int id, MovieCreateDto updatedMovie)
+        public async Task<ActionResult<MovieOutputDto>> UpdateMovie(int id, MovieCreateDto updatedMovie)
         {
-            var existingMovie = await _unitOfWork.Movies.FindAsync(id);
+            var existingMovie = await _service.UpdateMovieAsync(id, updatedMovie);
             if (existingMovie == null)
             {
                 _logger.LogWarning("Movie with ID {Id} is not found in {MethodName}",
@@ -131,13 +115,7 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-            _mapper.Map(updatedMovie, existingMovie);
-            await _unitOfWork.Movies.UpdateAsync(existingMovie);
-
-            _logger.LogInformation("{MethodName} updated movie with ID {Id}",
-                nameof(UpdateMovie), id);
-
-            return Ok();
+            return Ok(existingMovie);
         }
 
         /// <summary>
@@ -150,7 +128,7 @@ namespace WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
-            var existingMovie = await _unitOfWork.Movies.FindAsync(id);
+            var existingMovie = await _service.DeleteMovieAsync(id);
             if (existingMovie == null)
             {
                 _logger.LogWarning("Movie with ID {Id} is not found in {MethodName}",
@@ -159,31 +137,19 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            await _unitOfWork.Movies.DeleteAsync(existingMovie);
-
-            _logger.LogInformation("{MethodName} deleted movie with ID {Id}",
-                nameof(DeleteMovie), id);
-
             return NoContent();
         }
 
         /// <summary>
         /// Retrieves a list of popular movies, either from the cache or by querying the database.
         /// </summary>
-        /// <returns>A list of popular movies as <see cref="MovieOutputDto"/> objects.</returns>
+        /// <returns>A list of popular movies as <see cref="MovieViewsOutputDto"/> objects.</returns>
         /// <response code="200">Returns a list of popular movies.</response>
         /// <response code="500">Internal server error if there is a failure during database query or caching.</response>
         [HttpGet("popular")]
-        public async Task<List<MovieOutputDto>> GetPopularMovies()
+        public async Task<ActionResult<List<MovieViewsOutputDto>>> GetPopularMovies()
         {
-            var popularMovies = await _memoryCache.GetOrCreateAsync(nameof(GetPopularMovies), async cacheEntry =>
-            {
-                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-
-
-                var popularMoviesQuery = _unitOfWork.Movies.GetMostPopularMovies();
-                return await _mapper.ProjectTo<MovieOutputDto>(popularMoviesQuery).ToListAsync();
-            });
+            var popularMovies = await _service.GetPopularMoviesAsync();
 
             if (popularMovies != null && popularMovies.Any())
             {
@@ -194,7 +160,7 @@ namespace WebApp.Controllers
                 _logger.LogWarning("{MethodName} no popular movies found in cache.", nameof(GetPopularMovies));
             }
 
-            return popularMovies ?? new List<MovieOutputDto>();
+            return Ok(popularMovies ?? new List<MovieViewsOutputDto>());
         }
     }
 }
