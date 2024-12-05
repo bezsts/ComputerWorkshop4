@@ -13,9 +13,12 @@ namespace WebApp.Dtos.Movie
                 .ForMember(dest => dest.Genre, opt => 
                 opt.MapFrom(src => Enum.Parse<Genre>(src.Genre)));
 
-            CreateMap<MovieEntity, MovieOutputDto>()
+            CreateMap<MovieEntity, MovieViewsOutputDto>()
                 .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Genre.ToString()))
                 .ForMember(dest => dest.ViewCount, opt => opt.MapFrom(src => src.UsersWhoWatched.Count()));
+
+            CreateMap<MovieEntity, MovieOutputDto>()
+                .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Genre.ToString()));
         }
     }
 }
