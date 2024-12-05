@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Runtime.Serialization;
 using WebApp.Dtos.Movie;
+using WebApp.Options;
 using WebApp.Services.Contracts;
 
 namespace WebApp.Controllers
@@ -11,11 +14,14 @@ namespace WebApp.Controllers
     {
         private readonly IMovieService _service;
         private readonly ILogger<MoviesController> _logger;
+        private readonly IOptionsSnapshot<ExportMoviesOptions> _exportOptions;
 
-        public MoviesController(IMovieService service, ILogger<MoviesController> logger)
+        public MoviesController(IMovieService service, ILogger<MoviesController> logger,
+                                IOptionsSnapshot<ExportMoviesOptions> exportOptions)
         {
             _service = service;
             _logger = logger;
+            _exportOptions = exportOptions;
         }
 
         /// <summary>
@@ -161,6 +167,16 @@ namespace WebApp.Controllers
             }
 
             return Ok(popularMovies ?? new List<MovieViewsOutputDto>());
+        }
+
+        //TODO: додати коментарі
+        //TODO: додати логування
+        [HttpGet("download")]
+        public async Task<ActionResult> ExportMoviesInCsv()
+        {
+            var data = await _service.ExportMovies();
+
+            return File(data, "text/csv", _exportOptions.Value.FileName);
         }
     }
 }

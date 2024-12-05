@@ -12,5 +12,6 @@ namespace WebApp.Services.Contracts
         Task<MovieOutputDto?> UpdateMovieAsync(int id, MovieCreateDto updatedMovie);
         Task<MovieViewsOutputDto?> DeleteMovieAsync(int id);
         Task<List<MovieViewsOutputDto>?> GetPopularMoviesAsync();
+        Task<byte[]> ExportMovies();
     }
 }
