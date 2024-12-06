@@ -2,12 +2,14 @@ using ApiDomain;
 using ApiDomain.Services;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
 using WebApp;
 using WebApp.Options;
+using WebApp.Options.Validators;
 
 namespace ComputerWorkshop2
 {
@@ -25,9 +27,11 @@ namespace ComputerWorkshop2
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
             builder.Services.AddRepositories();
             builder.Services.AddServices();
+            builder.Services.AddExporters();
 
-            builder.Services.Configure<ExportMoviesOptions>(builder.Configuration.GetSection("ExportMoviesOptions"));
-            builder.Services.AddOptions<CsvOptions>().BindConfiguration("ExportMoviesOptions:CsvOptions");
+            builder.Services.AddOptionsValidators();
+            builder.Services.AddOptionsWithValidateOnStart<ExportMoviesOptions>().BindConfiguration("ExportMoviesOptions");
+            builder.Services.AddOptionsWithValidateOnStart<CsvOptions>().BindConfiguration("ExportMoviesOptions:CsvOptions");
 
             builder.Services.AddDbContext<DataModelContext>(contextOptions =>
                 contextOptions.UseSqlite("Data Source=Database/sample.db"));

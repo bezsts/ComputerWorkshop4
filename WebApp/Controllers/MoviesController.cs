@@ -178,21 +178,12 @@ namespace WebApp.Controllers
         [HttpGet("download")]
         public async Task<ActionResult> ExportMoviesInCsv()
         {
-            try
+            var data = await _service.ExportMovies();
+            if (data.Length == 0)
             {
-                var data = await _service.ExportMovies();
-                if (data.Length == 0)
-                {
-                    _logger.LogWarning("{MethodName} export returned empty data.", nameof(ExportMoviesInCsv));
-                }
-                return File(data, "text/csv", _exportOptions.Value.FileName);
+                _logger.LogWarning("{MethodName} export returned empty data.", nameof(ExportMoviesInCsv));
             }
-            catch (Exception ex)
-            {
-
-                _logger.LogError(ex, "{MethodName} encountered an error while exporting movies.", nameof(ExportMoviesInCsv));
-                return StatusCode(500, "An error occurred while exporting movies.");
-            }
+            return File(data, "text/csv", _exportOptions.Value.FileName);
         }
     }
 }
