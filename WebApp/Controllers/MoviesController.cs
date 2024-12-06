@@ -169,14 +169,30 @@ namespace WebApp.Controllers
             return Ok(popularMovies ?? new List<MovieViewsOutputDto>());
         }
 
-        //TODO: додати коментарі
-        //TODO: додати логування
+        /// <summary>
+        /// Exports a list of movies in CSV format.
+        /// </summary>
+        /// <returns>A CSV file containing movie data.</returns>
+        /// <response code="200">Returns a CSV file with movie data.</response>
+        /// <response code="500">Internal server error if exporting fails.</response>
         [HttpGet("download")]
         public async Task<ActionResult> ExportMoviesInCsv()
         {
-            var data = await _service.ExportMovies();
+            try
+            {
+                var data = await _service.ExportMovies();
+                if (data.Length == 0)
+                {
+                    _logger.LogWarning("{MethodName} export returned empty data.", nameof(ExportMoviesInCsv));
+                }
+                return File(data, "text/csv", _exportOptions.Value.FileName);
+            }
+            catch (Exception ex)
+            {
 
-            return File(data, "text/csv", _exportOptions.Value.FileName);
+                _logger.LogError(ex, "{MethodName} encountered an error while exporting movies.", nameof(ExportMoviesInCsv));
+                return StatusCode(500, "An error occurred while exporting movies.");
+            }
         }
     }
 }

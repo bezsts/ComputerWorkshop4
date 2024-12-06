@@ -227,9 +227,8 @@ namespace WebApp.Controllers
 
                 return NotFound();
             }
-            catch (MovieNotFoundException exception)
+            catch (MovieNotFoundException)
             {
-                _logger.LogWarning(exception.Message, movieId, nameof(AddWatchedMovie));
                 _logger.LogWarning("Movie with ID {MovieId} is not found in {MethodName}",
                     movieId, nameof(AddWatchedMovie));
 

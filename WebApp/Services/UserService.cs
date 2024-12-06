@@ -123,12 +123,12 @@ namespace WebApp.Services
 
             if (movie is null)
             {
-                throw new MovieNotFoundException("Movie with ID {MovieId} is not found in {MethodName}");
+                throw new MovieNotFoundException();
             }
 
             if (!user.WatchedMovies.Contains(movie))
             {
-                throw new MovieNotFoundException("Movie with ID {MovieId} is not found in watched movies of user with ID {UserId} in {MethodName}");
+                throw new MovieNotFoundException();
             }
 
             user.WatchedMovies.Remove(movie);
