@@ -6,8 +6,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using WebApp;
 using WebApp.Options;
-using WebApp.Services;
 
 namespace ComputerWorkshop2
 {

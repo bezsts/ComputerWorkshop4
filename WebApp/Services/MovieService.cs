@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Text;
+using WebApp.Common.Exporters;
+using WebApp.Common.Exporters.Contracts;
 using WebApp.Dtos.Movie;
 using WebApp.Options;
 using WebApp.Services.Contracts;
@@ -16,15 +18,15 @@ namespace WebApp.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _memoryCache;
-        private readonly IOptionsSnapshot<CsvOptions> _csvOptions;
+        private readonly ICsvExporter _csvExporter;
 
         public MovieService(IUnitOfWork unitOfWork, IMapper mapper, 
-                            IMemoryCache memoryCache, IOptionsSnapshot<CsvOptions> csvExportOptions)
+                            IMemoryCache memoryCache, ICsvExporter csvExporter)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _memoryCache = memoryCache;
-            _csvOptions = csvExportOptions;
+            _csvExporter = csvExporter;
         }
 
         public async Task<List<MovieViewsOutputDto>> GetAllMoviesAsync()
@@ -92,41 +94,17 @@ namespace WebApp.Services
             return popularMovies;
         }
         
-        //TODO: оптимізувати метод експорту фільмів
-        //TODO: розглянути можливість кешування
         public async Task<byte[]> ExportMovies()
         { 
             var movies = await GetAllMoviesAsync();
 
-            var csvData = new StringBuilder();
-            var csvExportOptions = _csvOptions.Value;
-            var fieldsToExport = csvExportOptions.FieldsToExport;
-            char delimiter = csvExportOptions.Delimiter;
 
-            movies = movies.Take(csvExportOptions.MaxExportRecords).ToList();
-            
-            csvData.AppendLine(String.Join(delimiter, fieldsToExport));
-
-            foreach (var movie in movies)
+            var csvData = _memoryCache.GetOrCreate(nameof(ExportMovies), cacheEntry =>
             {
-                var values = fieldsToExport.Select(field =>
-                {
-                    var property = typeof(MovieViewsOutputDto).GetProperty(field);
-
-                    if (property?.Name == "ReleaseDate")
-                    {
-                        var releaseDateValue = property.GetValue(movie);
-                        return releaseDateValue != null
-                            ? ((DateOnly)releaseDateValue).ToString(csvExportOptions.DateFormat)
-                            : string.Empty;
-                    }
-                    return property != null
-                        ? property.GetValue(movie)?.ToString() : string.Empty;
-                });
-
-                csvData.AppendLine(String.Join(delimiter, values));
-            }
-
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+                return _csvExporter.ExportMovies(movies);
+            }); 
+            csvData = csvData ?? string.Empty;
             return Encoding.UTF8.GetBytes(csvData.ToString());
         }
     }
