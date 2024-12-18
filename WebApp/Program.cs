@@ -19,6 +19,14 @@ namespace ComputerWorkshop2
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
+
             builder.Logging.ClearProviders();
             builder.Host.UseSerilog((context, config) => config.ReadFrom.Configuration(context.Configuration));
 
@@ -39,29 +47,30 @@ namespace ComputerWorkshop2
             builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             builder.Services.AddFluentValidationAutoValidation();
 
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "Catalog of watched films API",
-                    Description = "An ASP.NET Core Web API for managing a catalog of watched films"
-                });
+            //builder.Services.AddSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc("v1", new OpenApiInfo
+            //    {
+            //        Version = "v1",
+            //        Title = "Catalog of watched films API",
+            //        Description = "An ASP.NET Core Web API for managing a catalog of watched films"
+            //    });
 
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
-                    $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
-            });
+            //    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
+            //        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+            //});
 
             var app = builder.Build();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
 
             app.UseSerilogRequestLogging();
             app.MapControllers();
+            app.UseCors();
 
             app.Run();
         }
