@@ -10,6 +10,15 @@
         Documentary,
         Romance,
         Thriller,
-        Animation
+        Animation,
+        Crime,
+        War,
+        Mystery,
+        Biography,
+        Western,
+        Fantasy,
+        Adventure,
+        Musical,
+        SciFi
     }
 }
