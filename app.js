@@ -1,5 +1,5 @@
-let allMoviesTableBody = document.getElementById('all-movies-table').getElementsByTagName('tbody')[0];
-let popularMoviesTableBody = document.getElementById('popular-movies-table').getElementsByTagName('tbody')[0];
+let allMoviesList = document.getElementById('all-movies-list');
+let popularMoviesList = document.getElementById('popular-movies-list');
 let exportButton = document.getElementById('export-movies-button');
 window.onload = function () {
     loadAllMovies();
@@ -19,7 +19,7 @@ async function loadAllMovies() {
     let moviesData = await moviesResponse.json();
 
     for (let i = 0; i < moviesData.length; i++) {
-        allMoviesTableBody.appendChild(createMovieElement(moviesData[i]));
+        allMoviesList.appendChild(createMovieElement(moviesData[i]));
     }
 }
 
@@ -35,7 +35,7 @@ async function loadPopularMovies() {
     let moviesData = await moviesResponse.json();
 
     for (let i = 0; i < moviesData.length; i++) {
-        popularMoviesTableBody.appendChild(createMovieElement(moviesData[i]));
+        popularMoviesList.appendChild(createMovieElement(moviesData[i]));
     }
 }
 
@@ -59,27 +59,36 @@ async function ExportAllMovies() {
     URL.revokeObjectURL(url);
 }
 function createMovieElement(movieData) {
-    let title = document.createElement('td');
+    let li = document.createElement('li');
+
+    let titleDiv = document.createElement('div');
+    titleDiv.className = 'title';
+    let title = document.createElement('span');
     title.textContent = movieData.title;
+    titleDiv.appendChild(title);
 
-    let director = document.createElement('td');
+    let metadataDiv = document.createElement('div');
+    metadataDiv.className = 'metadata';
+    let director = document.createElement('span');
     director.textContent = movieData.director;
-
-    let genre = document.createElement('td');
+    let genre = document.createElement('span');
     genre.textContent = movieData.genre;
-
-    let releaseDate = document.createElement('td');
+    let releaseDate = document.createElement('span');
     releaseDate.textContent = movieData.releaseDate;
 
-    let viewCount = document.createElement('td');
-    viewCount.textContent = movieData.viewCount;
+    metadataDiv.appendChild(director);
+    metadataDiv.appendChild(genre);
+    metadataDiv.appendChild(releaseDate);
 
-    let tableRow = document.createElement('tr');
-    tableRow.appendChild(title);
-    tableRow.appendChild(director);
-    tableRow.appendChild(genre);
-    tableRow.appendChild(releaseDate);
-    tableRow.appendChild(viewCount);
+    let viewsDiv = document.createElement('div');
+    viewsDiv.className = 'views';
+    let views = document.createElement('span');
+    views.textContent = movieData.viewCount + ' views';
+    viewsDiv.appendChild(views);
 
-    return tableRow;
+    li.appendChild(titleDiv);
+    li.appendChild(metadataDiv);
+    li.appendChild(viewsDiv);
+
+    return li;
 }

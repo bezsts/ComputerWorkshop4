@@ -14,6 +14,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wwwroot", "wwwroot", "{590C
 	ProjectSection(SolutionItems) = preProject
 		app.js = app.js
 		index.html = index.html
+		styles.css = styles.css
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2177246C-DF68-4870-AD74-AE8A98D6583E}"
+	ProjectSection(SolutionItems) = preProject
+		test.css = test.css
+		test.html = test.html
 	EndProjectSection
 EndProject
 Global

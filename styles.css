@@ -1,0 +1,104 @@
+/*Grid settings*/
+.container {
+    display: grid;
+    height: 90vh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 20px;
+}
+
+.item {
+    width: 100%;
+    overflow: auto;
+}
+
+.all-movies-item {
+    grid-column: 1;
+    grid-row: span 2;
+}
+
+.watched-movies-item {
+    grid-column: 2;
+}
+
+/*Body*/
+body {
+    margin: 0;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/*Header*/
+header {
+    background: black;
+    color: white;
+    height: 75px;
+    text-align: center;
+}
+h1 {
+    margin: 0;
+    padding: 15px 0 0 0;
+}
+/*Main*/
+main {
+    margin: 0 15px 0 15px;
+}
+
+h2 {
+    text-align: center;
+}
+
+button {
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 15px 5px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    max-height: 30px;
+    max-width: 150px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.list-caption {
+    display: grid;
+    grid-template-columns: 80% 20%;
+}
+
+.list-caption button {
+    align-self: center;
+    margin-right: 10px;
+}
+
+/*Lists*/
+ul {
+    list-style-type: none;
+    padding: 0 20px 0 20px;
+}
+li {
+    margin-top: 20px;
+}
+
+li div {
+    margin-top: 5px;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: normal;
+    text-transform: none;
+    line-height: 1.2em;
+}
+
+.metadata {
+    display: flex;
+    justify-content: space-between;
+}
+/*All movies*/
+#all-movies-table caption h2 {
+    display: inline-block;
+}
+#export-movies-button {
+    display: inline-block;
+}

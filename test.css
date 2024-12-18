@@ -1,0 +1,27 @@
+﻿body {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+ul {
+    width: 300px;
+    list-style-type: none;
+}
+li {
+    margin-top: 20px;
+}
+li div {
+    margin-top: 5px;
+}
+.title
+{
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: normal;
+    text-transform: none;
+    line-height: 1.2em;
+}
+
+.metadata {
+    display: flex;
+    justify-content: space-between;
+}

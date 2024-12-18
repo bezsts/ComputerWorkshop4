@@ -1,48 +1,35 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <title>MovieVault</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
     <header>
         <h1>MovieVault</h1>
     </header>
     <main>
-        <table id="all-movies-table">
-            <caption>
-                <p>All movies</p>
-                <button id="export-movies-button">Export this list</button>
-            </caption>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Director</th>
-                    <th>Genre</th>
-                    <th>Release date</th>
-                    <th>ViewCount</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <table id="popular-movies-table">
-            <caption>Most popular movies</caption>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Director</th>
-                    <th>Genre</th>
-                    <th>Release date</th>
-                    <th>ViewCount</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="container">
+            <div class="item all-movies-item">
+                <div class = "list-caption">
+                    <h2>All Movies</h2>
+                    <button id="export-movies-button">Export this list</button>
+                </div>                
+                <ul id="all-movies-list">
+                </ul>
+            </div>
+            <div class="item popular-movies-item">
+                <h2>Popular movies</h2>
+                <ul id="popular-movies-list">
+                </ul>
+            </div>
+            <div class="item watched-movies-item">
+                <h2>Watched movies</h2>
+            </div>            
+        </div>
     </main>
-    <footer></footer>
     <script src="app.js"></script>
 </body>
 </html>
