@@ -1,10 +1,14 @@
-let allMoviesList = document.getElementById('all-movies-list');
-let popularMoviesList = document.getElementById('popular-movies-list');
+let moviesList = document.getElementById('movies-list');
+
+let showAllMoviesButton = document.getElementById('all-movies-button');
+let showPopularMoviesButton = document.getElementById('popular-movies-button');
+let showWatchedMoviesButton = document.getElementById('watched-movies-button');
 let exportButton = document.getElementById('export-movies-button');
-window.onload = function () {
-    loadAllMovies();
-    loadPopularMovies();
-};
+
+window.onload = loadAllMovies();
+
+showAllMoviesButton.addEventListener('click', loadAllMovies);
+showPopularMoviesButton.addEventListener('click', loadPopularMovies);
 exportButton.addEventListener('click', ExportAllMovies);
 
 async function loadAllMovies() {
@@ -18,8 +22,10 @@ async function loadAllMovies() {
 
     let moviesData = await moviesResponse.json();
 
+    moviesList.innerHTML = '';
+
     for (let i = 0; i < moviesData.length; i++) {
-        allMoviesList.appendChild(createMovieElement(moviesData[i]));
+        moviesList.appendChild(createMovieElement(moviesData[i]));
     }
 }
 
@@ -34,8 +40,10 @@ async function loadPopularMovies() {
 
     let moviesData = await moviesResponse.json();
 
+    moviesList.innerHTML = '';
+
     for (let i = 0; i < moviesData.length; i++) {
-        popularMoviesList.appendChild(createMovieElement(moviesData[i]));
+        moviesList.appendChild(createMovieElement(moviesData[i]));
     }
 }
 

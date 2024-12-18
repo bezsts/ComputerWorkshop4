@@ -1,30 +1,18 @@
 /*Grid settings*/
 .container {
     display: grid;
-    height: 90vh;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    column-gap: 20px;
+    grid-template-columns: 2fr 9fr;
+    column-gap: 200px;
 }
 
 .item {
     width: 100%;
-    overflow: auto;
-}
-
-.all-movies-item {
-    grid-column: 1;
-    grid-row: span 2;
-}
-
-.watched-movies-item {
-    grid-column: 2;
 }
 
 /*Body*/
 body {
     margin: 0;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 /*Header*/
@@ -43,8 +31,17 @@ main {
     margin: 0 15px 0 15px;
 }
 
-h2 {
-    text-align: center;
+.buttons-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-height: 200px;
+    margin-top: 20px;
+    height: 30vh;
+}
+
+.list-item {
+    justify-self: end;
 }
 
 button {
@@ -56,24 +53,15 @@ button {
     font-size: 16px;
     cursor: pointer;
     max-height: 30px;
-    max-width: 150px;
+    max-width: 300px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-.list-caption {
-    display: grid;
-    grid-template-columns: 80% 20%;
-}
-
-.list-caption button {
-    align-self: center;
-    margin-right: 10px;
 }
 
 /*Lists*/
 ul {
     list-style-type: none;
     padding: 0 20px 0 20px;
+    max-width: 800px;
 }
 li {
     margin-top: 20px;
@@ -92,13 +80,7 @@ li div {
 }
 
 .metadata {
-    display: flex;
-    justify-content: space-between;
-}
-/*All movies*/
-#all-movies-table caption h2 {
-    display: inline-block;
-}
-#export-movies-button {
-    display: inline-block;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: center;
 }
