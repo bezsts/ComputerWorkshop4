@@ -72,6 +72,8 @@ namespace ComputerWorkshop2
             app.MapControllers();
             app.UseCors();
 
+            app.UseStaticFiles();
+
             app.Run();
         }
     }

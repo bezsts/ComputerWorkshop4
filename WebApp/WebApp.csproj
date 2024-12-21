@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -26,11 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiDomain\ApiDomain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="logs\" />
-    <Folder Include="Database\" />
   </ItemGroup>
 
 </Project>
