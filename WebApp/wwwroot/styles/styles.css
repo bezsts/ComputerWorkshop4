@@ -86,6 +86,9 @@ li {
     }
 
 .title {
+    display: grid;
+    grid-template-columns: 7fr 1fr 1fr 1fr;
+    column-gap: 10px;
     font-weight: 600;
     font-size: 1rem;
     letter-spacing: normal;
@@ -97,4 +100,20 @@ li {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     justify-content: center;
+}
+
+.metadata-director {
+    justify-self: start;
+}
+
+.metadata-genre {
+    justify-self: center;
+}
+
+.metadata-release-date {
+    justify-self: end;
+}
+
+.edit-buttons {
+    max-width: 100px;
 }
