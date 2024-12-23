@@ -28,4 +28,10 @@
     <ProjectReference Include="..\ApiDomain\ApiDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\" />
+    <Folder Include="wwwroot\scripts\" />
+    <Folder Include="wwwroot\styles\" />
+  </ItemGroup>
+
 </Project>

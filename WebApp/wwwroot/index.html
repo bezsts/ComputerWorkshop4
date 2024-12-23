@@ -1,10 +1,8 @@
-﻿<!DOCTYPE html>
-
-<html lang="en">
+﻿<html lang="en">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8">
     <title>MovieVault</title>
-    <link rel="stylesheet" href="styles/styles.css" />
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
     <header>
@@ -12,19 +10,87 @@
     </header>
     <main>
         <div class="container">
-            <div class="item buttons-item">
-                <button id="all-movies-button">Show all movies</button>
-                <button id="popular-movies-button">Show the most popular movies</button>
-                <button id="watched-movies-button">Show my watched movies</button>
-                <button id="export-movies-button">Export all movies</button>
-            </div>
-            
+            <form class="item form-item movie-form-item">
+                <fieldset>
+                    <button id="all-movies-button" type="button">Show all movies</button>
+                </fieldset>
+                <fieldset>
+                    <input id="id-movie-input">
+                    <button id="get-movie-button" type="button">Get movie by id</button>
+                </fieldset>
+                <fieldset class="create-container">
+                    <label for="title-input">Title</label>
+                    <input id="title-input">
+
+                    <label for="director-input">Director</label>
+                    <input id="director-input">
+
+                    <label for="genre-select">Genre</label>
+                    <select id="genre-select" name="genres">
+                        <option value="Action">Action</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="Drama">Drama</option>
+                        <option value="Horror">Horror</option>
+                        <option value="ScienceFiction">Science Fiction</option>
+                        <option value="Documentary">Documentary</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="Animation">Animation</option>
+                        <option value="Crime">Crime</option>
+                        <option value="War">War</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Biography">Biography</option>
+                        <option value="Western">Western</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Adventure">Adventure</option>
+                        <option value="Musical">Musical</option>
+                        <option value="SciFi">Sci-Fi</option>
+                    </select>
+
+
+                    <label for="released-checkbox">Is movie released?</label>
+                    <input id="released-checkbox" type="checkbox">
+
+                    <label for="release-date">Release date</label>
+                    <input id="release-date" type="date">
+
+                    <button id="create-movie-button" type="button">Create movie</button>
+                </fieldset>
+                <fieldset>
+                    <button id="popular-movies-button" type="button">Show the most popular movies</button>
+                </fieldset>
+                <fieldset>
+                    <button id="export-movies-button" type="button">Export all movies</button>
+                </fieldset>
+            </form>
+
             <div class="item list-item">
-                <ul id="movies-list">
+                <ul id="list">
                 </ul>
-            </div>            
+            </div>
+
+            <form class="item form-item user-form-item">
+                <fieldset>
+                    <button id="all-users-button" type="button">Show all users</button>
+                </fieldset>
+                <fieldset>
+                    <input id = "id-user-input">
+                    <button id="id-user-button" type="button">Get user by id</button>
+                </fieldset>
+                <fieldset class="create-container">
+                    <label for="name-input">Name</label>
+                    <input id="name-input">
+
+                    <label for="email-input">Email</label>
+                    <input id="email-input" type="email">
+
+                    <button id="create-user-button" type="button">Create user</button>
+                </fieldset>
+
+                <fieldset>
+                    <button id="watched-movies-button" type="button">Show my watched movies</button>
+                </fieldset>
+            </form>
         </div>
     </main>
-    <script src="scripts/app.js" ></script>
-</body>
-</html>
+    <script src="scripts/app.js"></script>

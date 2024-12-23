@@ -1,8 +1,9 @@
 /*Grid settings*/
 .container {
     display: grid;
-    grid-template-columns: 2fr 9fr;
-    column-gap: 200px;
+    grid-template-columns: 2fr 6fr 2fr;
+    column-gap: 100px;
+    height: 85vh;
 }
 
 .item {
@@ -22,6 +23,7 @@ header {
     height: 75px;
     text-align: center;
 }
+
 h1 {
     margin: 0;
     padding: 15px 0 0 0;
@@ -31,13 +33,11 @@ main {
     margin: 0 15px 0 15px;
 }
 
-.buttons-item {
+.form-item {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    max-height: 200px;
     margin-top: 20px;
-    height: 30vh;
+    gap: 20px;
 }
 
 .list-item {
@@ -55,6 +55,19 @@ button {
     max-height: 30px;
     max-width: 300px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    width: 100%;
+}
+
+fieldset {
+    padding: 0px;
+}
+
+.create-container {
+    display: grid;
+}
+
+input + button {
+    margin-top: 10px;
 }
 
 /*Lists*/
@@ -63,13 +76,14 @@ ul {
     padding: 0 20px 0 20px;
     max-width: 800px;
 }
+
 li {
     margin-top: 20px;
 }
 
-li div {
-    margin-top: 5px;
-}
+    li div {
+        margin-top: 5px;
+    }
 
 .title {
     font-weight: 600;

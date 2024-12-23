@@ -92,7 +92,7 @@ namespace WebApp.Controllers
         /// <response code="201">The movie is successfully added.</response>
         /// <response code="400">The movie data is invalid.</response>
         [HttpPost]
-        public async Task<ActionResult<MovieOutputDto>> CreateMovie(MovieCreateDto movieDto)
+        public async Task<ActionResult<MovieOutputDto>> CreateMovie([FromBody] MovieCreateDto movieDto)
         {
             var movie = await _service.CreateMovieAsync(movieDto);
 
