@@ -19,6 +19,7 @@
         Fantasy,
         Adventure,
         Musical,
-        SciFi
+        SciFi,
+        History
     }
 }

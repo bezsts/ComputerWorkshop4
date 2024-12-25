@@ -387,4 +387,4 @@ getUserButton.addEventListener('click', () => userService.loadUser(idUserInput.v
 createUserButton.addEventListener('click', () => userService.createUser(userService.getUserDataFromInputs()));
 showWatchedMoviesButton.addEventListener('click', () => movieService.loadWatchedMovies(2));
 
-//movieService.loadAllMovies();
+movieService.loadAllMovies();
